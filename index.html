@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KKWIEER Navigation System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family: Arial; background:#eef2f3; text-align:center; margin:0; }
+h2 { background:#2c3e50; color:white; padding:15px; margin:0; }
+.container { padding:20px; }
+
+.btn {
+    display:block;
+    width:90%;
+    max-width:350px;
+    margin:10px auto;
+    padding:14px;
+    border-radius:12px;
+    font-size:16px;
+    cursor:pointer;
+    border:2px solid rgba(0,0,0,0.2);
+    color:white;
+    font-weight:bold;
+    text-shadow:1px 1px 2px rgba(0,0,0,0.6);
+}
+
+.back { background:#e67e22 !important; }
+
+.output {
+    background:white;
+    margin:20px;
+    padding:15px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.flowchart {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    margin-top:15px;
+}
+
+.step {
+    background:#fff;
+    border:2px solid #2c3e50;
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+}
+
+.arrow { font-size:20px; margin:5px; }
+
+.final-step {
+    background:#2ecc71;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+
+<body>
+
+<h2 id="title">🏫 KKWIEER Navigation System</h2>
+
+<div id="languageSelection" class="container">
+<h3>Choose Language / भाषा निवडा</h3>
+<button class="btn back" onclick="setLanguage('en')">English</button>
+<button class="btn back" onclick="setLanguage('mr')">मराठी</button>
+</div>
+
+<div class="container" id="app" style="display:none;"></div>
+<div class="output" id="output"></div>
+
+<script>
+
+let selectedLanguage="en";
+
+// Marathi dictionary
+const marathi={
+"General":"सामान्य विभाग","Mechanical":"मेकॅनिकल ","Civil":"सिव्हिल ",
+"Robotics":"रोबोटिक्स ","Computer Science":"कंप्युटर सायन्स",
+"CSD":"सीएसडी ","MCA":"एमसीए",
+
+"Library":"ग्रंथालय","Office":"कार्यालय","Accounts":"लेखा विभाग","Meeting Hall":"मीटिंग हॉल",
+"Gents Washroom":"पुरुष स्वच्छतागृह","Ladies Washroom":"महिला स्वच्छतागृह",
+
+"Robot Simulation Lab":"रोबोट सिम्युलेशन लॅब","Automation Lab":"ऑटोमेशन लॅब",
+"Embedded System Lab":"एम्बेडेड सिस्टम लॅब","ROS Lab":"ROS लॅब",
+"Robot Programming Lab":"रोबोट प्रोग्रामिंग लॅब","Mechatronics Lab":"मेकॅट्रॉनिक्स लॅब",
+"Metallurgy Lab":"मेटलर्जी लॅब",
+
+"Fluid Mechanics Lab":"फ्लुइड मेकॅनिक्स लॅब","Machine Lab":"मशीन लॅब",
+"Engine Lab":"इंजिन लॅब","Design Software Lab":"डिझाईन सॉफ्टवेअर लॅब",
+"Model Lab":"मॉडेल लॅब","Heat Transfer Lab":"हीट ट्रान्सफर लॅब",
+"RAC Lab":"RAC लॅब","Modelling & Simulation Lab":"मॉडेलिंग आणि सिम्युलेशन लॅब",
+
+"Material Testing Lab":"मटेरियल टेस्टिंग लॅब","Transportation Lab":"ट्रान्सपोर्टेशन लॅब",
+"Geotechnical Lab":"जिओटेक्निकल लॅब","Engineering Mechanics Lab":"इंजिनिअरिंग मेकॅनिक्स लॅब",
+"Environmental Lab":"एन्व्हायर्नमेंटल लॅब","Computer Lab":"कॉम्प्युटर लॅब",
+"Drawing Hall":"ड्रॉइंग हॉल",
+
+"From the main entrance":"मुख्य प्रवेशद्वारापासून",
+"Main entrance":"मुख्य प्रवेशद्वार","right":"उजवीकडे","left":"डावीकडे",
+"straight":"सरळ","stairs":"पायऱ्या",
+
+"1st floor":"पहिला मजला","2nd floor":"दुसरा मजला",
+"3rd floor":"तिसरा मजला","4th floor":"चौथा मजला",
+
+"dept":"विभाग"
+};
+
+const colors={"Mechanical":"#e67e22","Civil":"#27ae60","Robotics":"#8e44ad","Computer Science":"#2980b9","CSD":"#16a085","MCA":"#c0392b","General":"#2c3e50"};
+const icons={"Mechanical":"⚙️","Civil":"🏗️","Robotics":"🤖","Computer Science":"💻","CSD":"🎨","MCA":"📊","General":"🏫"};
+
+const base="From the main entrance → right → straight → stairs";
+const f1=base+" → 1st floor";
+const f2=base+" → 2nd floor";
+const f3=base+" → 3rd floor";
+const f4=base+" → 4th floor";
+
+// FULL DATA
+const data={
+"General":{
+"Library":"Main entrance → straight → Library",
+"Office":"Main entrance → right → Office",
+"Accounts":"Main entrance → right → Accounts",
+"Meeting Hall":"Main entrance → right → Meeting Hall"
+},
+"Mechanical":{
+"E101":"Main entrance → right → Mechanical dept → left → E101",
+"E102":"Main entrance → right → Mechanical dept → left → E102",
+"Gents Washroom":"Main entrance → right → Mechanical dept → left → Gents Washroom",
+"Mechatronics Lab":"Main entrance → right → Mechanical dept → left → Mechatronics Lab",
+"Fluid Mechanics Lab":"Main entrance → right → Mechanical dept → right → Fluid Mechanics Lab",
+"Machine Lab":"Main entrance → right → Mechanical dept → right → Machine Lab",
+"Tutorial Room":"Main entrance → right → Mechanical dept → right → Tutorial Room",
+"Engine Lab":"Main entrance → right → Mechanical dept → right → Engine Lab",
+"Design Software Lab":"Main entrance → right → Mechanical dept → right → Design Software Lab",
+"E201":f1+" → Mechanical dept → right → E201",
+"E202":f1+" → Mechanical dept → right → E202",
+"E203":f1+" → Mechanical dept",
+"Model Lab":f1+" → Mechanical dept → left → Model Lab",
+"Heat Transfer Lab":f1+" → Mechanical dept → left → Heat Transfer Lab",
+"RAC Lab":f1+" → Mechanical dept → left → RAC Lab",
+"Modelling & Simulation Lab":f1+" → Mechanical dept → right → Modelling & Simulation Lab"
+},
+"Civil":{
+"D101":"Main entrance → right → Civil dept → left → D101",
+"D102":"Main entrance → right → Civil dept → left → D102",
+"Material Testing Lab":"Main entrance → right → Civil dept → left → Material Testing Lab",
+"Fluid Mechanics Lab":"Main entrance → right → Civil dept → right → Fluid Mechanics Lab",
+"Transportation Lab":"Main entrance → right → Civil dept → right → Transportation Lab",
+"Geotechnical Lab":"Main entrance → right → Civil dept → right → Geotechnical Lab",
+"Engineering Mechanics Lab":"Main entrance → right → Civil dept → right → Engineering Mechanics Lab",
+"D201":f1+" → Civil dept → left → D201",
+"D202":f1+" → Civil dept → left → D202",
+"Environmental Lab":f1+" → Civil dept → left → Environmental Lab",
+"Seminar Hall":f1+" → Civil dept → right → Seminar Hall",
+"Computer Lab":f1+" → Civil dept → right → Computer Lab",
+"Drawing Hall":f1+" → Civil dept → right → Drawing Hall"
+},
+"Robotics":{
+"D301":f2+" → Robotics dept → left → D301",
+"D302":f2+" → Robotics dept → left → D302",
+"Robot Simulation Lab":f2+" → Robotics dept → left → Robot Simulation Lab",
+"Automation Lab":f2+" → Robotics dept → right → Automation Lab",
+"Embedded System Lab":f2+" → Robotics dept → right → Embedded System Lab",
+"ROS Lab":f2+" → Robotics dept → right → ROS Lab",
+"Robot Programming Lab":f2+" → Robotics dept → right → Robot Programming Lab",
+"Gents Washroom":f2+" → Robotics dept → right → Gents Washroom",
+"D401":f3+" → Robotics dept → left → D401",
+"D402":f3+" → Robotics dept → left → D402",
+"D403-I":f3+" → Robotics dept → right → D403-I",
+"D403-II":f3+" → Robotics dept → right → D403-II",
+"Seminar Hall":f3+" → Robotics dept → left → Seminar Hall",
+"Mechatronics Lab":f3+" → Robotics dept → right → Mechatronics Lab",
+"Metallurgy Lab":f3+" → Robotics dept → right → Metallurgy Lab"
+},
+"Computer Science":{
+"Programming Lab 1":f2+" → CS dept → left → Programming Lab 1",
+"Programming Lab 2":f2+" → CS dept → left → Programming Lab 2",
+"Programming Lab 3":f2+" → CS dept → left → Programming Lab 3",
+"Ladies Washroom":f2+" → CS dept → left → Ladies Washroom",
+"Tutorial Room":f2+" → CS dept → right → Tutorial Room",
+"E301":f2+" → CS dept → right → E301",
+"E302":f2+" → CS dept → right → E302",
+"E401":f3+" → CS dept → right → E401",
+"E402":f3+" → CS dept → right → E402",
+"E403-I":f3+" → CS dept → left → E403-I",
+"E403-II":f3+" → CS dept → left → E403-II",
+"Gents Washroom":f3+" → CS dept → left → Gents Washroom"
+},
+"CSD":{
+"Programming Lab 1":f4+" → CSD dept → left → Programming Lab 1",
+"Programming Lab 2":f4+" → CSD dept → left → Programming Lab 2",
+"Programming Lab 3":f4+" → CSD dept → left → Programming Lab 3",
+"Ladies Washroom":f4+" → CSD dept → left → Ladies Washroom",
+"E501":f4+" → CSD dept → right → E501",
+"E502":f4+" → CSD dept → right → E502",
+"Seminar Hall":f4+" → CSD dept → right → Seminar Hall"
+},
+"MCA":{
+"D501":f4+" → MCA dept → left → D501",
+"D502":f4+" → MCA dept → left → D502",
+"MCA Lab":f4+" → MCA dept → right → MCA Lab",
+"MCA Lab 2":f4+" → MCA dept → right → MCA Lab 2",
+"Seminar Hall":f4+" → MCA dept → left → Seminar Hall",
+"Ladies Washroom":f4+" → MCA dept → right → Ladies Washroom"
+}
+};
+
+// FUNCTIONS
+
+function setLanguage(lang){
+selectedLanguage=lang;
+languageSelection.style.display="none";
+app.style.display="block";
+if(lang==="mr") title.innerText="🏫 KKWIEER नेव्हिगेशन प्रणाली";
+showDepartments();
+}
+
+function goToLanguage(){
+languageSelection.style.display="block";
+app.style.display="none";
+output.innerHTML="";
+}
+
+function translate(t){
+if(selectedLanguage==="en") return t;
+Object.keys(marathi).sort((a,b)=>b.length-a.length).forEach(k=>t=t.replaceAll(k,marathi[k]));
+return t;
+}
+
+let currentDept="";
+
+function showDepartments(){
+output.innerHTML="";
+let html="<h3>"+(selectedLanguage==="mr"?"विभाग निवडा":"Select Department")+"</h3>";
+for(let d in data){
+html+=`<button class='btn' style='background:${colors[d]}' onclick='showLocations("${d}")'>${icons[d]} ${selectedLanguage==="mr"?marathi[d]:d}</button>`;
+}
+html+=`<button class='btn back' onclick='goToLanguage()'>⬅ Back</button>`;
+app.innerHTML=html;
+}
+
+function showLocations(d){
+output.innerHTML="";
+currentDept=d;
+let html=`<h3>${selectedLanguage==="mr"?marathi[d]:d}</h3>`;
+for(let l in data[d]){
+html+=`<button class='btn' style='background:${colors[d]}' onclick='showDirection("${l}")'>${selectedLanguage==="mr"?(marathi[l]||l):l}</button>`;
+}
+html+=`<button class='btn back' onclick='showDepartments()'>⬅ Back</button>`;
+app.innerHTML=html;
+}
+
+function showDirection(l){
+let text=data[currentDept][l];
+let t=translate(text);
+
+output.innerHTML="📍 "+t;
+
+let steps=t.split("→");
+let f="<div class='flowchart'>";
+steps.forEach((s,i)=>{
+f+=`<div class='step ${i==steps.length-1?"final-step":""}'>${s}</div>`;
+if(i<steps.length-1)f+="<div class='arrow'>➡️</div>";
+});
+f+="</div>";
+output.innerHTML+=f;
+
+if(selectedLanguage==="en"){
+let msg=new SpeechSynthesisUtterance();
+msg.text=text.replaceAll("→"," then go to ");
+msg.rate=0.5;
+speechSynthesis.cancel();
+speechSynthesis.speak(msg);
+}
+
+let btn1=selectedLanguage==="mr"?"🔄 दुसरे स्थान":"🔄 Other Location";
+let btn2=selectedLanguage==="mr"?"🏢 विभाग बदला":"🏢 Change Department";
+let back=selectedLanguage==="mr"?"⬅ मागे जा":"⬅ Back";
+
+app.innerHTML=`
+<button class='btn back' onclick='showLocations(currentDept)'>${btn1}</button>
+<button class='btn back' onclick='showDepartments()'>${btn2}</button>
+<button class='btn back' onclick='showLocations(currentDept)'>${back}</button>
+`;
+}
+
+</script>
+
+</body>
+</html>
