@@ -49,18 +49,9 @@ h2 { background:#2c3e50; color:white; padding:15px; margin:0; }
     border-radius:8px;
 }
 
-.arrow {
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-    margin:5px;
-}
+.arrow { font-size:20px; margin:5px; }
 
-.final-step {
-    background:#2ecc71;
-    color:white;
-}
+.final-step { background:#2ecc71; color:white; }
 </style>
 </head>
 
@@ -79,6 +70,7 @@ h2 { background:#2c3e50; color:white; padding:15px; margin:0; }
 
 <script>
 
+// ===== VARIABLES =====
 const app = document.getElementById("app");
 const output = document.getElementById("output");
 const languageSelection = document.getElementById("languageSelection");
@@ -87,175 +79,295 @@ let selectedLanguage="en";
 let currentDept="";
 let currentText="";
 
-// Marathi dictionary
-const marathi = {
-"General":"सामान्य विभाग","Mechanical":"मेकॅनिकल विभाग","Civil":"सिव्हिल विभाग",
-"Robotics":"रोबोटिक्स विभाग","Computer Science":"कंप्युटर सायन्स विभाग",
-"CSD":"सीएसडी विभाग","MCA":"एमसीए विभाग",
-
-"Mechanical dept":"मेकॅनिकल विभाग","Civil dept":"सिव्हिल विभाग",
-"Robotics dept":"रोबोटिक्स विभाग","CS dept":"कंप्युटर सायन्स विभाग",
-"CSD dept":"सीएसडी विभाग","MCA dept":"एमसीए विभाग",
-
-"Library":"ग्रंथालय","Office":"कार्यालय","Accounts":"लेखा विभाग","Meeting Hall":"मीटिंग हॉल",
-"Gents Washroom":"पुरुष स्वच्छतागृह","Ladies Washroom":"महिला स्वच्छतागृह",
-
-"Programming Lab 1":"प्रोग्रामिंग लॅब १",
-"Programming Lab 2":"प्रोग्रामिंग लॅब २",
-"Programming Lab 3":"प्रोग्रामिंग लॅब ३",
-"Tutorial Room":"ट्युटोरियल रूम",
-"Seminar Hall":"सेमिनार हॉल",
-
-"Robot Simulation Lab":"रोबोट सिम्युलेशन लॅब","Automation Lab":"ऑटोमेशन लॅब",
-"Embedded System Lab":"एम्बेडेड सिस्टम लॅब","ROS Lab":"ROS लॅब",
-"Robot Programming Lab":"रोबोट प्रोग्रामिंग लॅब","Mechatronics Lab":"मेकॅट्रॉनिक्स लॅब",
-"Metallurgy Lab":"मेटलर्जी लॅब",
-
-"Fluid Mechanics Lab":"फ्लुइड मेकॅनिक्स लॅब","Machine Lab":"मशीन लॅब",
-"Engine Lab":"इंजिन लॅब","Design Software Lab":"डिझाईन सॉफ्टवेअर लॅब",
-"Model Lab":"मॉडेल लॅब","Heat Transfer Lab":"हीट ट्रान्सफर लॅब",
-"RAC Lab":"RAC लॅब","Modelling & Simulation Lab":"मॉडेलिंग आणि सिम्युलेशन लॅब",
-
-"Material Testing Lab":"मटेरियल टेस्टिंग लॅब","Transportation Lab":"ट्रान्सपोर्टेशन लॅब",
-"Geotechnical Lab":"जिओटेक्निकल लॅब","Engineering Mechanics Lab":"इंजिनिअरिंग मेकॅनिक्स लॅब",
-"Environmental Lab":"एन्व्हायर्नमेंटल लॅब","Computer Lab":"कॉम्प्युटर लॅब",
-"Drawing Hall":"ड्रॉइंग हॉल",
-
-"Main entrance":"मुख्य प्रवेशद्वार","right":"उजवीकडे","left":"डावीकडे",
-"straight":"सरळ","stairs":"पायऱ्या",
-"1st floor":"पहिला मजला","2nd floor":"दुसरा मजला",
-"3rd floor":"तिसरा मजला","4th floor":"चौथा मजला"
-};
-
-// COLORS
-const colors={
-"Mechanical":"#e67e22","Civil":"#27ae60","Robotics":"#8e44ad",
-"Computer Science":"#2980b9","CSD":"#16a085","MCA":"#c0392b","General":"#2c3e50"
-};
-
-// PATH BASE
+// ===== FLOOR BASE =====
 const base="Main entrance → right → straight → stairs";
 const f1=base+" → 1st floor";
 const f2=base+" → 2nd floor";
 const f3=base+" → 3rd floor";
 const f4=base+" → 4th floor";
 
-// FULL DATA
-const data = {
-"General":{
-"Library":"Main entrance → straight → Library",
-"Office":"Main entrance → right → Office",
-"Accounts":"Main entrance → right → Accounts",
-"Meeting Hall":"Main entrance → right → Meeting Hall"
-},
-"Mechanical":{
-"E101":"Main entrance → right → Mechanical dept → left → E101",
-"E102":"Main entrance → right → Mechanical dept → left → E102",
-"Gents Washroom":"Main entrance → right → Mechanical dept → left → Gents Washroom",
-"Mechatronics Lab":"Main entrance → right → Mechanical dept → left → Mechatronics Lab",
-"Fluid Mechanics Lab":"Main entrance → right → Mechanical dept → right → Fluid Mechanics Lab",
-"Machine Lab":"Main entrance → right → Mechanical dept → right → Machine Lab",
-"Tutorial Room":"Main entrance → right → Mechanical dept → right → Tutorial Room",
-"Engine Lab":"Main entrance → right → Mechanical dept → right → Engine Lab",
-"Design Software Lab":"Main entrance → right → Mechanical dept → right → Design Software Lab",
-"E201":f1+" → Mechanical dept → right → E201",
-"E202":f1+" → Mechanical dept → right → E202",
-"E203":f1+" → Mechanical dept",
-"Model Lab":f1+" → Mechanical dept → left → Model Lab",
-"Heat Transfer Lab":f1+" → Mechanical dept → left → Heat Transfer Lab",
-"RAC Lab":f1+" → Mechanical dept → left → RAC Lab",
-"Modelling & Simulation Lab":f1+" → Mechanical dept → right → Modelling & Simulation Lab"
-},
-"Civil":{
-"D101":"Main entrance → right → Civil dept → left → D101",
-"D102":"Main entrance → right → Civil dept → left → D102",
-"Material Testing Lab":"Main entrance → right → Civil dept → left → Material Testing Lab",
-"Fluid Mechanics Lab":"Main entrance → right → Civil dept → right → Fluid Mechanics Lab",
-"Transportation Lab":"Main entrance → right → Civil dept → right → Transportation Lab",
-"Geotechnical Lab":"Main entrance → right → Civil dept → right → Geotechnical Lab",
-"Engineering Mechanics Lab":"Main entrance → right → Civil dept → right → Engineering Mechanics Lab",
-"D201":f1+" → Civil dept → left → D201",
-"D202":f1+" → Civil dept → left → D202",
-"Environmental Lab":f1+" → Civil dept → left → Environmental Lab",
-"Seminar Hall":f1+" → Civil dept → right → Seminar Hall",
-"Computer Lab":f1+" → Civil dept → right → Computer Lab",
-"Drawing Hall":f1+" → Civil dept → right → Drawing Hall"
-},
-"Robotics":{
-"D301":f2+" → Robotics dept → left → D301",
-"D302":f2+" → Robotics dept → left → D302",
-"Robot Simulation Lab":f2+" → Robotics dept → left → Robot Simulation Lab",
-"Automation Lab":f2+" → Robotics dept → right → Automation Lab",
-"Embedded System Lab":f2+" → Robotics dept → right → Embedded System Lab",
-"ROS Lab":f2+" → Robotics dept → right → ROS Lab",
-"Robot Programming Lab":f2+" → Robotics dept → right → Robot Programming Lab",
-"Gents Washroom":f2+" → Robotics dept → right → Gents Washroom",
-"D401":f3+" → Robotics dept → left → D401",
-"D402":f3+" → Robotics dept → left → D402",
-"D403-I":f3+" → Robotics dept → right → D403-I",
-"D403-II":f3+" → Robotics dept → right → D403-II",
-"Seminar Hall":f3+" → Robotics dept → left → Seminar Hall",
-"Mechatronics Lab":f3+" → Robotics dept → right → Mechatronics Lab",
-"Metallurgy Lab":f3+" → Robotics dept → right → Metallurgy Lab"
-},
-"Computer Science":{
-"Programming Lab 1":f2+" → CS dept → left → Programming Lab 1",
-"Programming Lab 2":f2+" → CS dept → left → Programming Lab 2",
-"Programming Lab 3":f2+" → CS dept → left → Programming Lab 3",
-"Ladies Washroom":f2+" → CS dept → left → Ladies Washroom",
-"Tutorial Room":f2+" → CS dept → right → Tutorial Room",
-"E301":f2+" → CS dept → right → E301",
-"E302":f2+" → CS dept → right → E302",
-"E401":f3+" → CS dept → right → E401",
-"E402":f3+" → CS dept → right → E402",
-"E403-I":f3+" → CS dept → left → E403-I",
-"E403-II":f3+" → CS dept → left → E403-II",
-"Gents Washroom":f3+" → CS dept → left → Gents Washroom"
-},
-"CSD":{
-"Programming Lab 1":f4+" → CSD dept → left → Programming Lab 1",
-"Programming Lab 2":f4+" → CSD dept → left → Programming Lab 2",
-"Programming Lab 3":f4+" → CSD dept → left → Programming Lab 3",
-"Ladies Washroom":f4+" → CSD dept → left → Ladies Washroom",
-"E501":f4+" → CSD dept → right → E501",
-"E502":f4+" → CSD dept → right → E502",
-"Seminar Hall":f4+" → CSD dept → right → Seminar Hall"
-},
-"MCA":{
-"D501":f4+" → MCA dept → left → D501",
-"D502":f4+" → MCA dept → left → D502",
-"MCA Lab":f4+" → MCA dept → right → MCA Lab",
-"MCA Lab 2":f4+" → MCA dept → right → MCA Lab 2",
-"Seminar Hall":f4+" → MCA dept → left → Seminar Hall",
-"Ladies Washroom":f4+" → MCA dept → right → Ladies Washroom"
-}
+// ===== TRANSLATION =====
+const marathi = {
+"General":"सामान्य विभाग","Mechanical":"मेकॅनिकल विभाग","Civil":"सिव्हिल विभाग",  
+"Robotics":"रोबोटिक्स विभाग","Computer Science":"कंप्युटर सायन्स विभाग",  
+"CSD":"सीएसडी विभाग","MCA":"एमसीए विभाग",  
+  
+"Mechanical dept":"मेकॅनिकल विभाग","Civil dept":"सिव्हिल विभाग",  
+"Robotics dept":"रोबोटिक्स विभाग","CS dept":"कंप्युटर सायन्स विभाग",  
+"CSD dept":"सीएसडी विभाग","MCA dept":"एमसीए विभाग",  
+  
+"Library":"ग्रंथालय","Office":"कार्यालय","Accounts":"लेखा विभाग","Meeting Hall":"मीटिंग हॉल",  
+"Gents Washroom":"पुरुष स्वच्छतागृह","Ladies Washroom":"महिला स्वच्छतागृह",  
+  
+"Programming Lab 1":"प्रोग्रामिंग लॅब १",  
+"Programming Lab 2":"प्रोग्रामिंग लॅब २",  
+"Programming Lab 3":"प्रोग्रामिंग लॅब ३",  
+"Tutorial Room":"ट्युटोरियल रूम",  
+"Seminar Hall":"सेमिनार हॉल",  
+  
+"Robot Simulation Lab":"रोबोट सिम्युलेशन लॅब","Automation Lab":"ऑटोमेशन लॅब",  
+"Embedded System Lab":"एम्बेडेड सिस्टम लॅब","ROS Lab":"ROS लॅब",  
+"Robot Programming Lab":"रोबोट प्रोग्रामिंग लॅब","Mechatronics Lab":"मेकॅट्रॉनिक्स लॅब",  
+"Metallurgy Lab":"मेटलर्जी लॅब",  
+  
+"Fluid Mechanics Lab":"फ्लुइड मेकॅनिक्स लॅब","Machine Lab":"मशीन लॅब",  
+"Engine Lab":"इंजिन लॅब","Design Software Lab":"डिझाईन सॉफ्टवेअर लॅब",  
+"Model Lab":"मॉडेल लॅब","Heat Transfer Lab":"हीट ट्रान्सफर लॅब",  
+"RAC Lab":"RAC लॅब","Modelling & Simulation Lab":"मॉडेलिंग आणि सिम्युलेशन लॅब",  
+  
+"Material Testing Lab":"मटेरियल टेस्टिंग लॅब","Transportation Lab":"ट्रान्सपोर्टेशन लॅब",  
+"Geotechnical Lab":"जिओटेक्निकल लॅब","Engineering Mechanics Lab":"इंजिनिअरिंग मेकॅनिक्स लॅब",  
+"Environmental Lab":"एन्व्हायर्नमेंटल लॅब","Computer Lab":"कॉम्प्युटर लॅब",  
+"Drawing Hall":"ड्रॉइंग हॉल",  
+  
+"Main entrance":"मुख्य प्रवेशद्वार","right":"उजवीकडे","left":"डावीकडे",  
+"straight":"सरळ","stairs":"पायऱ्या",  
+"1st floor":"पहिला मजला","2nd floor":"दुसरा मजला",  
+"3rd floor":"तिसरा मजला","4th floor":"चौथा मजला"  ,
+"ground floor":"तळ मजला",
+
+"Canteen":"कॅन्टीन","Parking":"पार्किंग","Boys Hostel":"मुलांचा वसतिगृह",
+"Girls Hostel":"मुलींचे वसतिगृह","Gymkhana":"जिमखाना","Mess":"मेस",
+"Bus Office":"बस कार्यालय","Basketball Court":"बास्केटबॉल कोर्ट",
+"Idea Lab":"आयडिया लॅब","Girls Parking":"मुलींचे पार्किंग",
+"Engineering Building":"इंजिनिअरिंग इमारत","Engineering Workshop":"वर्कशॉप",
+"Pharmacy Building":"फार्मसी इमारत","Polytechnic Building":"पॉलिटेक्निक इमारत",
+
+"Other Location":"दुसरे स्थान","Change Department":"विभाग बदला","Go to Main Entrance":"मुख्य प्रवेशद्वाराकडे जा"
 };
 
-// TRANSLATE
-function translate(t){
-if(selectedLanguage==="en") return t;
+function translate(text){
+if(selectedLanguage==="en") return text;
 Object.keys(marathi).sort((a,b)=>b.length-a.length)
-.forEach(k=>t=t.replaceAll(k,marathi[k]));
-return t;
+.forEach(k=>text=text.replaceAll(k,marathi[k]));
+return text;
 }
 
-// REVERSE PATH
-function reverseDirection(text){
-let steps=text.split("→").map(s=>s.trim()).reverse();
-steps=steps.map(s=>{
-if(s.includes("right")) return s.replace("right","left");
-if(s.includes("left")) return s.replace("left","right");
-return s;
+// ===== CAMPUS =====
+const campus = {
+"Canteen":"Main entrance → right → straight → Canteen",
+"Parking":"Main entrance → right → straight → Canteen → straight → Parking",
+"Boys Hostel":"Main entrance → right → straight → Canteen → straight → Boys Hostel",
+"Gymkhana":"Main entrance → right → straight → Canteen → right → Gymkhana",
+"Mess":"Main entrance → right → straight → Canteen → right → Mess",
+"Bus Office":"Main entrance → right → straight → Canteen → right → Bus Office",
+"Basketball Court":"Main entrance → right → left → straight → Basketball Court",
+"Idea Lab":"Main entrance → right → left → straight → left → Idea Lab",
+
+"Girls Parking":"Main entrance → left → straight → Girls Parking",
+"Engineering Building":"Main entrance → left → straight → right → Engineering Building",
+"Girls Hostel":"Main entrance → left → right → straight → end → left → Girls Hostel",
+"Engineering Workshop":"Main entrance → left → right → straight → end → Engineering Workshop",
+"Pharmacy Building":"Main entrance → left → right → straight → end → Pharmacy Building",
+"Polytechnic Building":"Main entrance → left → right → straight → end → right → Polytechnic Building",
+"General":{  
+"Library":"Main entrance → straight → Library",  
+"Office":"Main entrance → right → Office",  
+"Accounts":"Main entrance → right → Accounts",  
+"Meeting Hall":"Main entrance → right → Meeting Hall"  
+},  
+"Mechanical":{  
+"E101":"Main entrance → right → Mechanical dept → left → E101",  
+"E102":"Main entrance → right → Mechanical dept → left → E102",  
+"Gents Washroom":"Main entrance → right → Mechanical dept → left → Gents Washroom",  
+"Mechatronics Lab":"Main entrance → right → Mechanical dept → left → Mechatronics Lab",  
+"Fluid Mechanics Lab":"Main entrance → right → Mechanical dept → right → Fluid Mechanics Lab",  
+"Machine Lab":"Main entrance → right → Mechanical dept → right → Machine Lab",  
+"Tutorial Room":"Main entrance → right → Mechanical dept → right → Tutorial Room",  
+"Engine Lab":"Main entrance → right → Mechanical dept → right → Engine Lab",  
+"Design Software Lab":"Main entrance → right → Mechanical dept → right → Design Software Lab",  
+"E201":f1+" → Mechanical dept → right → E201",  
+"E202":f1+" → Mechanical dept → right → E202",  
+"E203":f1+" → Mechanical dept",  
+"Model Lab":f1+" → Mechanical dept → left → Model Lab",  
+"Heat Transfer Lab":f1+" → Mechanical dept → left → Heat Transfer Lab",  
+"RAC Lab":f1+" → Mechanical dept → left → RAC Lab",  
+"Modelling & Simulation Lab":f1+" → Mechanical dept → right → Modelling & Simulation Lab"  
+},  
+"Civil":{  
+"D101":"Main entrance → right → Civil dept → left → D101",  
+"D102":"Main entrance → right → Civil dept → left → D102",  
+"Material Testing Lab":"Main entrance → right → Civil dept → left → Material Testing Lab",  
+"Fluid Mechanics Lab":"Main entrance → right → Civil dept → right → Fluid Mechanics Lab",  
+"Transportation Lab":"Main entrance → right → Civil dept → right → Transportation Lab",  
+"Geotechnical Lab":"Main entrance → right → Civil dept → right → Geotechnical Lab",  
+"Engineering Mechanics Lab":"Main entrance → right → Civil dept → right → Engineering Mechanics Lab",  
+"D201":f1+" → Civil dept → left → D201",  
+"D202":f1+" → Civil dept → left → D202",  
+"Environmental Lab":f1+" → Civil dept → left → Environmental Lab",  
+"Seminar Hall":f1+" → Civil dept → right → Seminar Hall",  
+"Computer Lab":f1+" → Civil dept → right → Computer Lab",  
+"Drawing Hall":f1+" → Civil dept → right → Drawing Hall"  
+},  
+"Robotics":{  
+"D301":f2+" → Robotics dept → left → D301",  
+"D302":f2+" → Robotics dept → left → D302",  
+"Robot Simulation Lab":f2+" → Robotics dept → left → Robot Simulation Lab",  
+"Automation Lab":f2+" → Robotics dept → right → Automation Lab",  
+"Embedded System Lab":f2+" → Robotics dept → right → Embedded System Lab",  
+"ROS Lab":f2+" → Robotics dept → right → ROS Lab",  
+"Robot Programming Lab":f2+" → Robotics dept → right → Robot Programming Lab",  
+"Gents Washroom":f2+" → Robotics dept → right → Gents Washroom",  
+"D401":f3+" → Robotics dept → left → D401",  
+"D402":f3+" → Robotics dept → left → D402",  
+"D403-I":f3+" → Robotics dept → right → D403-I",  
+"D403-II":f3+" → Robotics dept → right → D403-II",  
+"Seminar Hall":f3+" → Robotics dept → left → Seminar Hall",  
+"Mechatronics Lab":f3+" → Robotics dept → right → Mechatronics Lab",  
+"Metallurgy Lab":f3+" → Robotics dept → right → Metallurgy Lab"  
+},  
+"Computer Science":{  
+"Programming Lab 1":f2+" → CS dept → left → Programming Lab 1",  
+"Programming Lab 2":f2+" → CS dept → left → Programming Lab 2",  
+"Programming Lab 3":f2+" → CS dept → left → Programming Lab 3",  
+"Ladies Washroom":f2+" → CS dept → left → Ladies Washroom",  
+"Tutorial Room":f2+" → CS dept → right → Tutorial Room",  
+"E301":f2+" → CS dept → right → E301",  
+"E302":f2+" → CS dept → right → E302",  
+"E401":f3+" → CS dept → right → E401",  
+"E402":f3+" → CS dept → right → E402",  
+"E403-I":f3+" → CS dept → left → E403-I",  
+"E403-II":f3+" → CS dept → left → E403-II",  
+"Gents Washroom":f3+" → CS dept → left → Gents Washroom"  
+},  
+"CSD":{  
+"Programming Lab 1":f4+" → CSD dept → left → Programming Lab 1",  
+"Programming Lab 2":f4+" → CSD dept → left → Programming Lab 2",  
+"Programming Lab 3":f4+" → CSD dept → left → Programming Lab 3",  
+"Ladies Washroom":f4+" → CSD dept → left → Ladies Washroom",  
+"E501":f4+" → CSD dept → right → E501",  
+"E502":f4+" → CSD dept → right → E502",  
+"Seminar Hall":f4+" → CSD dept → right → Seminar Hall"  
+},  
+"MCA":{  
+"D501":f4+" → MCA dept → left → D501",  
+"D502":f4+" → MCA dept → left → D502",  
+"MCA Lab":f4+" → MCA dept → right → MCA Lab",  
+"MCA Lab 2":f4+" → MCA dept → right → MCA Lab 2",  
+"Seminar Hall":f4+" → MCA dept → left → Seminar Hall",  
+"Ladies Washroom":f4+" → MCA dept → right → Ladies Washroom"  
+}  
+
+};
+
+// ===== COLORS =====
+const colors={
+"Mechanical":"#e67e22","Civil":"#27ae60","Robotics":"#8e44ad",
+"Computer Science":"#2980b9","CSD":"#16a085","MCA":"#c0392b","General":"#2c3e50"
+};
+
+// ===== DATA =====
+const data = {
+"General":{  
+"Library":"Main entrance → straight → Library",  
+"Office":"Main entrance → right → Office",  
+"Accounts":"Main entrance → right → Accounts",  
+"Meeting Hall":"Main entrance → right → Meeting Hall"  
+},  
+"Mechanical":{  
+"E101":"Main entrance → right → Mechanical dept → left → E101",  
+"E102":"Main entrance → right → Mechanical dept → left → E102",  
+"Gents Washroom":"Main entrance → right → Mechanical dept → left → Gents Washroom",  
+"Mechatronics Lab":"Main entrance → right → Mechanical dept → left → Mechatronics Lab",  
+"Fluid Mechanics Lab":"Main entrance → right → Mechanical dept → right → Fluid Mechanics Lab",  
+"Machine Lab":"Main entrance → right → Mechanical dept → right → Machine Lab",  
+"Tutorial Room":"Main entrance → right → Mechanical dept → right → Tutorial Room",  
+"Engine Lab":"Main entrance → right → Mechanical dept → right → Engine Lab",  
+"Design Software Lab":"Main entrance → right → Mechanical dept → right → Design Software Lab",  
+"E201":f1+" → Mechanical dept → right → E201",  
+"E202":f1+" → Mechanical dept → right → E202",  
+"E203":f1+" → Mechanical dept",  
+"Model Lab":f1+" → Mechanical dept → left → Model Lab",  
+"Heat Transfer Lab":f1+" → Mechanical dept → left → Heat Transfer Lab",  
+"RAC Lab":f1+" → Mechanical dept → left → RAC Lab",  
+"Modelling & Simulation Lab":f1+" → Mechanical dept → right → Modelling & Simulation Lab"  
+},  
+"Civil":{  
+"D101":"Main entrance → right → Civil dept → left → D101",  
+"D102":"Main entrance → right → Civil dept → left → D102",  
+"Material Testing Lab":"Main entrance → right → Civil dept → left → Material Testing Lab",  
+"Fluid Mechanics Lab":"Main entrance → right → Civil dept → right → Fluid Mechanics Lab",  
+"Transportation Lab":"Main entrance → right → Civil dept → right → Transportation Lab",  
+"Geotechnical Lab":"Main entrance → right → Civil dept → right → Geotechnical Lab",  
+"Engineering Mechanics Lab":"Main entrance → right → Civil dept → right → Engineering Mechanics Lab",  
+"D201":f1+" → Civil dept → left → D201",  
+"D202":f1+" → Civil dept → left → D202",  
+"Environmental Lab":f1+" → Civil dept → left → Environmental Lab",  
+"Seminar Hall":f1+" → Civil dept → right → Seminar Hall",  
+"Computer Lab":f1+" → Civil dept → right → Computer Lab",  
+"Drawing Hall":f1+" → Civil dept → right → Drawing Hall"  
+},  
+"Robotics":{  
+"D301":f2+" → Robotics dept → left → D301",  
+"D302":f2+" → Robotics dept → left → D302",  
+"Robot Simulation Lab":f2+" → Robotics dept → left → Robot Simulation Lab",  
+"Automation Lab":f2+" → Robotics dept → right → Automation Lab",  
+"Embedded System Lab":f2+" → Robotics dept → right → Embedded System Lab",  
+"ROS Lab":f2+" → Robotics dept → right → ROS Lab",  
+"Robot Programming Lab":f2+" → Robotics dept → right → Robot Programming Lab",  
+"Gents Washroom":f2+" → Robotics dept → right → Gents Washroom",  
+"D401":f3+" → Robotics dept → left → D401",  
+"D402":f3+" → Robotics dept → left → D402",  
+"D403-I":f3+" → Robotics dept → right → D403-I",  
+"D403-II":f3+" → Robotics dept → right → D403-II",  
+"Seminar Hall":f3+" → Robotics dept → left → Seminar Hall",  
+"Mechatronics Lab":f3+" → Robotics dept → right → Mechatronics Lab",  
+"Metallurgy Lab":f3+" → Robotics dept → right → Metallurgy Lab"  
+},  
+"Computer Science":{  
+"Programming Lab 1":f2+" → CS dept → left → Programming Lab 1",  
+"Programming Lab 2":f2+" → CS dept → left → Programming Lab 2",  
+"Programming Lab 3":f2+" → CS dept → left → Programming Lab 3",  
+"Ladies Washroom":f2+" → CS dept → left → Ladies Washroom",  
+"Tutorial Room":f2+" → CS dept → right → Tutorial Room",  
+"E301":f2+" → CS dept → right → E301",  
+"E302":f2+" → CS dept → right → E302",  
+"E401":f3+" → CS dept → right → E401",  
+"E402":f3+" → CS dept → right → E402",  
+"E403-I":f3+" → CS dept → left → E403-I",  
+"E403-II":f3+" → CS dept → left → E403-II",  
+"Gents Washroom":f3+" → CS dept → left → Gents Washroom"  
+},  
+"CSD":{  
+"Programming Lab 1":f4+" → CSD dept → left → Programming Lab 1",  
+"Programming Lab 2":f4+" → CSD dept → left → Programming Lab 2",  
+"Programming Lab 3":f4+" → CSD dept → left → Programming Lab 3",  
+"Ladies Washroom":f4+" → CSD dept → left → Ladies Washroom",  
+"E501":f4+" → CSD dept → right → E501",  
+"E502":f4+" → CSD dept → right → E502",  
+"Seminar Hall":f4+" → CSD dept → right → Seminar Hall"  
+},  
+"MCA":{  
+"D501":f4+" → MCA dept → left → D501",  
+"D502":f4+" → MCA dept → left → D502",  
+"MCA Lab":f4+" → MCA dept → right → MCA Lab",  
+"MCA Lab 2":f4+" → MCA dept → right → MCA Lab 2",  
+"Seminar Hall":f4+" → MCA dept → left → Seminar Hall",  
+"Ladies Washroom":f4+" → MCA dept → right → Ladies Washroom"  
+}  
+};
+
+// ===== FLOW =====
+function showFlow(text){
+let t=translate(text);
+output.innerHTML="📍 "+t;
+
+let steps=t.split("→");
+let f="<div class='flowchart'>";
+steps.forEach((s,i)=>{
+f+=`<div class='step ${i==steps.length-1?"final-step":""}'>${s}</div>`;
+if(i<steps.length-1)f+=`<div class='arrow'>➡️</div>`;
 });
-return steps.join(" → ");
+f+="</div>";
+output.innerHTML+=f;
 }
 
-// LANGUAGE
+// ===== NAVIGATION =====
 function setLanguage(lang){
 selectedLanguage=lang;
 languageSelection.style.display="none";
 app.style.display="block";
-showDepartments();
+showCampus();
 }
 
 function goToLanguage(){
@@ -264,20 +376,41 @@ languageSelection.style.display="block";
 output.innerHTML="";
 }
 
-// DEPARTMENTS
-function showDepartments(){
-output.innerHTML="";
-let html="<h3>"+(selectedLanguage==="mr"?"विभाग निवडा":"Select Department")+"</h3>";
-for(let d in data){
-html+=`<button class='btn' style='background:${colors[d]}' onclick='showLocations("${d}")'>${translate(d)}</button>`;
+function showCampus(){
+let html="<h3>"+(selectedLanguage==="mr"?"स्थान निवडा":"Select Location")+"</h3>";
+for(let p in campus){
+html+=`<button class='btn back' onclick='showCampusDirection("${p}")'>${translate(p)}</button>`;
 }
 html+=`<button class='btn back' onclick='goToLanguage()'>⬅ Back</button>`;
 app.innerHTML=html;
 }
 
-// LOCATIONS
+function showCampusDirection(p){
+currentText=campus[p];
+showFlow(currentText);
+
+if(p==="Engineering Building"){
+app.innerHTML=`
+<button class='btn' style='background:#2c3e50' onclick='showDepartments()'>
+${selectedLanguage==="mr"?"इमारतीत प्रवेश करा":"Enter Building"}
+</button>
+<button class='btn back' onclick='showCampus()'>⬅ Back</button>
+`;
+} else {
+app.innerHTML=`<button class='btn back' onclick='showCampus()'>⬅ Back</button>`;
+}
+}
+
+function showDepartments(){
+let html="";
+for(let d in data){
+html+=`<button class='btn' style='background:${colors[d]}' onclick='showLocations("${d}")'>${translate(d)}</button>`;
+}
+html+=`<button class='btn back' onclick='showCampus()'>⬅ Back</button>`;
+app.innerHTML=html;
+}
+
 function showLocations(d){
-output.innerHTML="";
 currentDept=d;
 let html="";
 for(let l in data[d]){
@@ -287,70 +420,34 @@ html+=`<button class='btn back' onclick='showDepartments()'>⬅ Back</button>`;
 app.innerHTML=html;
 }
 
-// DIRECTIONS + VOICE
 function showDirection(l){
-let text=data[currentDept][l];
-currentText=text;
-
-let t=translate(text);
-output.innerHTML="📍 "+t;
-
-// FLOWCHART
-let steps=t.split("→");
-let f="<div class='flowchart'>";
-steps.forEach((s,i)=>{
-f+=`<div class='step ${i==steps.length-1?"final-step":""}'>${s}</div>`;
-if(i<steps.length-1)f+=`<div class='arrow'>➡️</div>`;
-});
-f+="</div>";
-output.innerHTML+=f;
-
-// VOICE FIXED
-if(selectedLanguage==="en"){
-let msg=new SpeechSynthesisUtterance(text.replaceAll("→"," then go to "));
-let voices=speechSynthesis.getVoices();
-if(voices.length>0){
-msg.voice=voices.find(v=>v.lang.includes("en"))||voices[0];
-}
-speechSynthesis.cancel();
-setTimeout(()=>speechSynthesis.speak(msg),100);
-}
-
-// BUTTONS
-let btn1 = selectedLanguage==="mr" ? "🔄 दुसरे स्थान" : "🔄 Other Location";
-let btn2 = selectedLanguage==="mr" ? "🏢 विभाग बदला" : "🏢 Change Department";
-let btn3 = selectedLanguage==="mr" ? "🔙 मुख्य प्रवेशद्वाराकडे जा" : "🔙 Go to Main Entrance";
+currentText=data[currentDept][l];
+showFlow(currentText);
 
 app.innerHTML=`
-<button class='btn back' onclick='showLocations(currentDept)'>${btn1}</button>
-<button class='btn back' onclick='showDepartments()'>${btn2}</button>
-<button class='btn back' onclick='goToEntrance()'>${btn3}</button>
+<button class='btn back' onclick='showLocations(currentDept)'>${translate("Other Location")}</button>
+<button class='btn back' onclick='showDepartments()'>${translate("Change Department")}</button>
+<button class='btn back' onclick='goToEntrance()'>${translate("Go to Main Entrance")}</button>
 `;
 }
 
-// REVERSE NAVIGATION
+// ===== RETURN =====
 function goToEntrance(){
-let reversed=reverseDirection(currentText);
-let t=translate(reversed);
+let path = currentText.split("→").map(s => s.trim());
+path.pop();
+path = path.reverse();
 
-output.innerHTML="📍 "+t;
-
-let steps=t.split("→");
-let f="<div class='flowchart'>";
-steps.forEach((s,i)=>{
-f+=`<div class='step ${i==steps.length-1?"final-step":""}'>${s}</div>`;
-if(i<steps.length-1)f+=`<div class='arrow'>➡️</div>`;
+path = path.map(step => {
+if(step==="left") return "right";
+if(step==="right") return "left";
+if(step.includes("floor")) return "stairs → ground floor";
+return step;
 });
-f+="</div>";
-output.innerHTML+=f;
+
+path.push("Main entrance");
+showFlow(path.join(" → "));
 }
 
-// LOAD VOICES
-speechSynthesis.onvoiceschanged = () => {
-speechSynthesis.getVoices();
-};
-
 </script>
-
 </body>
 </html>
